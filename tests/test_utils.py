@@ -201,6 +201,21 @@ class TestCleanTextForTTS:
     def test_collapses_whitespace(self):
         assert clean_text_for_tts("hello   world") == "hello world"
 
+    def test_preserves_ssml_voice_tag(self):
+        assert clean_text_for_tts(
+            "<voice name='Giorgio'>Il sistema è operativo!</voice>"
+        ) == "<voice name='Giorgio'>Il sistema è operativo!</voice>"
+
+    @pytest.mark.parametrize("tag", ["prosody rate='slow'", "break time='500ms'",
+                                     "say-as interpret-as='date'", "emphasis"])
+    def test_preserves_other_ssml_tags(self, tag):
+        assert f"<{tag}>" in clean_text_for_tts(f"<{tag}>ciao")
+
+    def test_strips_html_around_ssml(self):
+        assert clean_text_for_tts(
+            "<b><voice name='Giorgio'>ciao</voice></b>"
+        ) == "<voice name='Giorgio'>ciao</voice>"
+
 
 # ============================================================================
 # sanitize_text_visual

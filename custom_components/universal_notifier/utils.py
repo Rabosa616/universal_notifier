@@ -94,10 +94,23 @@ def get_current_slot_info(slots_conf: dict, now_time,
             current_vol = vol_val
     return current_slot, current_vol
 
+# Tag SSML supportati dai motori TTS (Alexa, Google): vanno preservati.
+SSML_TAGS = {
+    "speak", "voice", "prosody", "break", "say-as", "emphasis",
+    "lang", "phoneme",
+}
+_TAG_PATTERN = re.compile(r'<\s*/?\s*([a-zA-Z][\w:-]*)[^>]*>')
+
+def _strip_non_ssml_tags(text: str) -> str:
+    """Rimuove i tag HTML mantenendo i tag SSML noti."""
+    return _TAG_PATTERN.sub(
+        lambda m: m.group(0) if m.group(1).lower() in SSML_TAGS else '', text
+    )
+
 def clean_text_for_tts(text: str) -> str:
     """Rimuove caratteri speciali per la sintesi vocale."""
     if not text: return ""
-    text = re.sub(r'<[^>]+>', '', text)    # Via HTML tags
+    text = _strip_non_ssml_tags(text)      # Via HTML tags, tiene SSML
     text = re.sub(r'[*_`\[\]]', '', text) # Via markdown
     text = re.sub(r'http\S+', '', text)    # Via URL
     # Via emoji/icon (preserva lettere accentate latin-1)
