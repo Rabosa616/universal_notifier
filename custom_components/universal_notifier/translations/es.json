@@ -1,0 +1,197 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Universal Notifier — Configuración",
+        "description": "Configura los ajustes globales de notificación y los horarios de No Molestar.",
+        "data": {
+          "assistant_name":  "Nombre del asistente",
+          "date_format":     "Formato horario (strftime, p. ej. %H:%M)",
+          "include_time":    "Incluir la hora en el prefijo del mensaje",
+          "bold_prefix":     "Prefijo del mensaje en negrita",
+          "priority_volume": "Volumen prioritario (0.0 - 1.0)",
+          "person_entities": "Entidades persona (opcional, para detección de presencia)",
+          "weekday_dnd_start": "Inicio No Molestar laborables (HH:MM)",
+          "weekday_dnd_end":   "Fin No Molestar laborables (HH:MM)",
+          "weekend_dnd_start": "Inicio No Molestar fin de semana (HH:MM)",
+          "weekend_dnd_end":   "Fin No Molestar fin de semana (HH:MM)",
+          "ignore_title_voice": "Ignorar título en mensajes de voz",
+          "weekend_days": "Días de fin de semana"
+        }
+      },
+      "time_slots": {
+        "title": "Franjas horarias",
+        "description": "Establece la hora de inicio y el volumen TTS para cada franja horaria. Laborables y fin de semana pueden tener configuraciones diferentes.",
+        "data": {
+          "weekday_morning_start":    "Laborable - Inicio mañana",
+          "weekday_morning_volume":   "Laborable - Volumen mañana",
+          "weekday_afternoon_start":  "Laborable - Inicio tarde",
+          "weekday_afternoon_volume": "Laborable - Volumen tarde",
+          "weekday_evening_start":    "Laborable - Inicio noche",
+          "weekday_evening_volume":   "Laborable - Volumen noche",
+          "weekday_night_start":      "Laborable - Inicio madrugada",
+          "weekday_night_volume":     "Laborable - Volumen madrugada",
+          "weekend_morning_start":    "Fin de semana - Inicio mañana",
+          "weekend_morning_volume":   "Fin de semana - Volumen mañana",
+          "weekend_afternoon_start":  "Fin de semana - Inicio tarde",
+          "weekend_afternoon_volume": "Fin de semana - Volumen tarde",
+          "weekend_evening_start":    "Fin de semana - Inicio noche",
+          "weekend_evening_volume":   "Fin de semana - Volumen noche",
+          "weekend_night_start":      "Fin de semana - Inicio madrugada",
+          "weekend_night_volume":     "Fin de semana - Volumen madrugada"
+        }
+      },
+      "greetings": {
+        "title": "Saludos",
+        "description": "Introduce un saludo por línea para cada franja horaria. Se elegirá uno al azar.",
+        "data": {
+          "morning_greetings":   "Saludos de la mañana",
+          "afternoon_greetings": "Saludos de la tarde",
+          "evening_greetings":   "Saludos de la noche",
+          "night_greetings":     "Saludos de la madrugada"
+        }
+      },
+      "add_first_channel": {
+        "title": "Primer canal (obligatorio)",
+        "description": "Añade al menos un canal de notificación para completar la configuración.",
+        "data": {
+          "alias":        "Alias (nombre único, p. ej. notifica_ui)",
+          "service":      "Servicio (dominio.servicio, p. ej. notify.persistent_notification)",
+          "target":       "Entity_id o chat_id de destino (opcional, separados por coma para múltiples)",
+          "is_voice":     "Canal de voz (TTS)",
+          "alt_services": "Servicios alternativos (diccionario JSON opcional)",
+          "default_media_player": "Media Player predeterminado (opcional — alternativa para canales de voz)"
+        }
+      }
+    },
+    "error": {
+      "required":        "Este campo es obligatorio.",
+      "invalid_time":    "Formato horario no válido — usa HH:MM (p. ej. 23:00).",
+      "invalid_json":    "JSON no válido para los servicios alternativos.",
+      "invalid_service": "El servicio debe estar en formato dominio.servicio (p. ej. notify.mobile_app)."
+    },
+    "abort": {
+      "already_configured": "Universal Notifier ya está configurado.",
+      "single_instance_allowed": "Solo se permite una instancia de Universal Notifier."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Universal Notifier — Opciones",
+        "menu_options": {
+          "global_settings": "Configuración global",
+          "dnd":             "No Molestar",
+          "time_slots":      "Franjas horarias",
+          "greetings":       "Saludos",
+          "channels_menu":   "Canales"
+        }
+      },
+      "global_settings": {
+        "title": "Configuración global",
+        "data": {
+          "assistant_name":  "Nombre del asistente",
+          "date_format":     "Formato horario (strftime, p. ej. %H:%M)",
+          "include_time":    "Incluir la hora en el prefijo del mensaje",
+          "bold_prefix":     "Prefijo del mensaje en negrita",
+          "priority_volume": "Volumen prioritario (0.0 - 1.0)",
+          "person_entities": "Entidades persona (opcional, para detección de presencia)",
+          "ignore_title_voice": "Ignorar título en mensajes de voz",
+          "weekend_days": "Días de fin de semana"
+        }
+      },
+      "dnd": {
+        "title": "No Molestar",
+        "description": "Las notificaciones de voz se suprimen durante esta ventana horaria (salvo que priority=true).",
+        "data": {
+          "weekday_dnd_start": "Inicio No Molestar laborables (HH:MM)",
+          "weekday_dnd_end":   "Fin No Molestar laborables (HH:MM)",
+          "weekend_dnd_start": "Inicio No Molestar fin de semana (HH:MM)",
+          "weekend_dnd_end":   "Fin No Molestar fin de semana (HH:MM)"
+        }
+      },
+      "time_slots": {
+        "title": "Franjas horarias",
+        "description": "Establece la hora de inicio y el volumen TTS para cada franja horaria. Laborables y fin de semana pueden tener configuraciones diferentes.",
+        "data": {
+          "weekday_morning_start":    "Laborable - Inicio mañana",
+          "weekday_morning_volume":   "Laborable - Volumen mañana",
+          "weekday_afternoon_start":  "Laborable - Inicio tarde",
+          "weekday_afternoon_volume": "Laborable - Volumen tarde",
+          "weekday_evening_start":    "Laborable - Inicio noche",
+          "weekday_evening_volume":   "Laborable - Volumen noche",
+          "weekday_night_start":      "Laborable - Inicio madrugada",
+          "weekday_night_volume":     "Laborable - Volumen madrugada",
+          "weekend_morning_start":    "Fin de semana - Inicio mañana",
+          "weekend_morning_volume":   "Fin de semana - Volumen mañana",
+          "weekend_afternoon_start":  "Fin de semana - Inicio tarde",
+          "weekend_afternoon_volume": "Fin de semana - Volumen tarde",
+          "weekend_evening_start":    "Fin de semana - Inicio noche",
+          "weekend_evening_volume":   "Fin de semana - Volumen noche",
+          "weekend_night_start":      "Fin de semana - Inicio madrugada",
+          "weekend_night_volume":     "Fin de semana - Volumen madrugada"
+        }
+      },
+      "greetings": {
+        "title": "Saludos",
+        "description": "Introduce un saludo por línea para cada franja horaria.",
+        "data": {
+          "morning_greetings":   "Saludos de la mañana",
+          "afternoon_greetings": "Saludos de la tarde",
+          "evening_greetings":   "Saludos de la noche",
+          "night_greetings":     "Saludos de la madrugada"
+        }
+      },
+      "channels_menu": {
+        "title": "Canales",
+        "menu_options": {
+          "add_channel":    "Añadir canal",
+          "edit_channel":   "Editar canal",
+          "remove_channel": "Eliminar canal"
+        }
+      },
+      "add_channel": {
+        "title": "Añadir canal",
+        "description": "Define un nuevo alias para el canal de notificación.",
+        "data": {
+          "alias":        "Alias (nombre único, p. ej. google_home)",
+          "service":      "Servicio (dominio.servicio, p. ej. notify.persistent_notification)",
+          "target":       "Entity_id o chat_id de destino (opcional, separados por coma para múltiples)",
+          "is_voice":     "Canal de voz (aplica lógica TTS, No Molestar y volumen)",
+          "alt_services": "Servicios alternativos (diccionario JSON opcional — para foto/vídeo de Telegram, etc.)",
+          "default_media_player": "Media Player predeterminado (opcional — alternativa para canales de voz)"
+        }
+      },
+      "edit_channel": {
+        "title": "Editar canal",
+        "data": {
+          "alias": "Canal a editar"
+        }
+      },
+      "edit_channel_form": {
+        "title": "Editar canal",
+        "description": "Modifica el canal seleccionado. También puedes renombrarlo cambiando el alias.",
+        "data": {
+          "alias":        "Alias (nombre único)",
+          "service":      "Servicio (dominio.servicio, p. ej. notify.persistent_notification)",
+          "target":       "Entity_id o chat_id de destino (opcional, separados por coma para múltiples)",
+          "is_voice":     "Canal de voz (aplica lógica TTS, No Molestar y volumen)",
+          "alt_services": "Servicios alternativos (diccionario JSON opcional)",
+          "default_media_player": "Media Player predeterminado (opcional)"
+        }
+      },
+      "remove_channel": {
+        "title": "Eliminar canal",
+        "data": {
+          "alias": "Canal a eliminar"
+        }
+      }
+    },
+    "error": {
+      "required":        "Este campo es obligatorio.",
+      "invalid_time":    "Formato horario no válido — usa HH:MM.",
+      "invalid_json":    "Cadena JSON no válida para los servicios alternativos.",
+      "invalid_service": "El servicio debe estar en formato dominio.servicio (p. ej. notify.mobile_app)."
+    }
+  }
+}

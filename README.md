@@ -12,8 +12,15 @@ a new release from an appdaemon app by @caiosweet and @jumping2000
 > **🆕 Latest (v0.8.0):** Weekday/Weekend DND split, comma-separated multi-target support. See the [Changelog](CHANGELOG.md) for details.
 >
 > [User configuration Guide](USER_GUIDE.md)
->
-> 🇮🇹 [Versione Italiana / Italian Version](README_IT.md)
+
+### 🌍 Translations
+
+| Language | README | User Guide |
+|:---|:---|:---|
+| en English | [README.md](README.md) | [USER_GUIDE.md](USER_GUIDE.md) |
+| it Italiano | [README_IT.md](README_IT.md) | [USER_GUIDE_IT.md](USER_GUIDE_IT.md) |
+| ca Català | [README_CA.md](README_CA.md) | [USER_GUIDE_CA.md](USER_GUIDE_CA.md) |
+| es Español | [README_ES.md](README_ES.md) | [USER_GUIDE_ES.md](USER_GUIDE_ES.md) |
 <!---
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-brightgreen.svg)](https://https://github.com/jumping2000/universal_notifier/graphs/commit-activity?style=for-the-badge)
 [![GitHub issues](https://img.shields.io/github/issues/jumping2000/universal_notifier)](https://github.com/jumping2000/universal_notifier/issues?style=for-the-badge)<br>
