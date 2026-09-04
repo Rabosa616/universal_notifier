@@ -358,6 +358,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     final_msg = full_spoken_text
                     final_title = None
                     text_content_for_duration = final_msg
+                elif srv_domain == "notify" and srv_name == "send_message":
+                    # Plain-text channel (companion app): strip HTML, no HA prefix, no greeting
+                    final_msg = re.sub(r'<[^>]+>', '', str(target_raw_message)).strip()
+                    if final_title:
+                        final_title = re.sub(r'<[^>]+>', '', str(final_title)).strip()
                 else:
                     clean_name = sanitize_text_visual(raw_name, parse_mode)
                     clean_time = sanitize_text_visual(raw_time_str, parse_mode)
