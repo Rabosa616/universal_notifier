@@ -1,0 +1,197 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Universal Notifier — Configuració",
+        "description": "Configura les opcions globals de notificació i els horaris de No Molestar.",
+        "data": {
+          "assistant_name":  "Nom de l'assistent",
+          "date_format":     "Format horari (strftime, p. ex. %H:%M)",
+          "include_time":    "Inclou l'hora al prefix del missatge",
+          "bold_prefix":     "Prefix del missatge en negreta",
+          "priority_volume": "Volum prioritari (0.0 - 1.0)",
+          "person_entities": "Entitats persona (opcional, per a detecció de presència)",
+          "weekday_dnd_start": "Inici No Molestar feiners (HH:MM)",
+          "weekday_dnd_end":   "Fi No Molestar feiners (HH:MM)",
+          "weekend_dnd_start": "Inici No Molestar cap de setmana (HH:MM)",
+          "weekend_dnd_end":   "Fi No Molestar cap de setmana (HH:MM)",
+          "ignore_title_voice": "Ignora el títol als missatges de veu",
+          "weekend_days": "Dies de cap de setmana"
+        }
+      },
+      "time_slots": {
+        "title": "Franges horàries",
+        "description": "Estableix l'hora d'inici i el volum TTS per a cada franja horària. Feiners i cap de setmana poden tenir configuracions diferents.",
+        "data": {
+          "weekday_morning_start":    "Feiner - Inici matí",
+          "weekday_morning_volume":   "Feiner - Volum matí",
+          "weekday_afternoon_start":  "Feiner - Inici tarda",
+          "weekday_afternoon_volume": "Feiner - Volum tarda",
+          "weekday_evening_start":    "Feiner - Inici vespre",
+          "weekday_evening_volume":   "Feiner - Volum vespre",
+          "weekday_night_start":      "Feiner - Inici nit",
+          "weekday_night_volume":     "Feiner - Volum nit",
+          "weekend_morning_start":    "Cap de setmana - Inici matí",
+          "weekend_morning_volume":   "Cap de setmana - Volum matí",
+          "weekend_afternoon_start":  "Cap de setmana - Inici tarda",
+          "weekend_afternoon_volume": "Cap de setmana - Volum tarda",
+          "weekend_evening_start":    "Cap de setmana - Inici vespre",
+          "weekend_evening_volume":   "Cap de setmana - Volum vespre",
+          "weekend_night_start":      "Cap de setmana - Inici nit",
+          "weekend_night_volume":     "Cap de setmana - Volum nit"
+        }
+      },
+      "greetings": {
+        "title": "Salutacions",
+        "description": "Introdueix una salutació per línia per a cada franja horària. Se'n triarà una a l'atzar.",
+        "data": {
+          "morning_greetings":   "Salutacions del matí",
+          "afternoon_greetings": "Salutacions de la tarda",
+          "evening_greetings":   "Salutacions del vespre",
+          "night_greetings":     "Salutacions de la nit"
+        }
+      },
+      "add_first_channel": {
+        "title": "Primer canal (obligatori)",
+        "description": "Afegeix almenys un canal de notificació per completar la configuració.",
+        "data": {
+          "alias":        "Àlies (nom únic, p. ex. notifica_ui)",
+          "service":      "Servei (domini.servei, p. ex. notify.persistent_notification)",
+          "target":       "Entity_id o chat_id de destí (opcional, separats per coma per a múltiples)",
+          "is_voice":     "Canal de veu (TTS)",
+          "alt_services": "Serveis alternatius (diccionari JSON opcional)",
+          "default_media_player": "Media Player predeterminat (opcional — alternativa per a canals de veu)"
+        }
+      }
+    },
+    "error": {
+      "required":        "Aquest camp és obligatori.",
+      "invalid_time":    "Format horari no vàlid — utilitza HH:MM (p. ex. 23:00).",
+      "invalid_json":    "JSON no vàlid per als serveis alternatius.",
+      "invalid_service": "El servei ha d'estar en format domini.servei (p. ex. notify.mobile_app)."
+    },
+    "abort": {
+      "already_configured": "Universal Notifier ja està configurat.",
+      "single_instance_allowed": "Només es permet una instància de Universal Notifier."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Universal Notifier — Opcions",
+        "menu_options": {
+          "global_settings": "Configuració global",
+          "dnd":             "No Molestar",
+          "time_slots":      "Franges horàries",
+          "greetings":       "Salutacions",
+          "channels_menu":   "Canals"
+        }
+      },
+      "global_settings": {
+        "title": "Configuració global",
+        "data": {
+          "assistant_name":  "Nom de l'assistent",
+          "date_format":     "Format horari (strftime, p. ex. %H:%M)",
+          "include_time":    "Inclou l'hora al prefix del missatge",
+          "bold_prefix":     "Prefix del missatge en negreta",
+          "priority_volume": "Volum prioritari (0.0 - 1.0)",
+          "person_entities": "Entitats persona (opcional, per a detecció de presència)",
+          "ignore_title_voice": "Ignora el títol als missatges de veu",
+          "weekend_days": "Dies de cap de setmana"
+        }
+      },
+      "dnd": {
+        "title": "No Molestar",
+        "description": "Les notificacions de veu se suprimeixen durant aquesta finestra horària (excepte si priority=true).",
+        "data": {
+          "weekday_dnd_start": "Inici No Molestar feiners (HH:MM)",
+          "weekday_dnd_end":   "Fi No Molestar feiners (HH:MM)",
+          "weekend_dnd_start": "Inici No Molestar cap de setmana (HH:MM)",
+          "weekend_dnd_end":   "Fi No Molestar cap de setmana (HH:MM)"
+        }
+      },
+      "time_slots": {
+        "title": "Franges horàries",
+        "description": "Estableix l'hora d'inici i el volum TTS per a cada franja horària. Feiners i cap de setmana poden tenir configuracions diferents.",
+        "data": {
+          "weekday_morning_start":    "Feiner - Inici matí",
+          "weekday_morning_volume":   "Feiner - Volum matí",
+          "weekday_afternoon_start":  "Feiner - Inici tarda",
+          "weekday_afternoon_volume": "Feiner - Volum tarda",
+          "weekday_evening_start":    "Feiner - Inici vespre",
+          "weekday_evening_volume":   "Feiner - Volum vespre",
+          "weekday_night_start":      "Feiner - Inici nit",
+          "weekday_night_volume":     "Feiner - Volum nit",
+          "weekend_morning_start":    "Cap de setmana - Inici matí",
+          "weekend_morning_volume":   "Cap de setmana - Volum matí",
+          "weekend_afternoon_start":  "Cap de setmana - Inici tarda",
+          "weekend_afternoon_volume": "Cap de setmana - Volum tarda",
+          "weekend_evening_start":    "Cap de setmana - Inici vespre",
+          "weekend_evening_volume":   "Cap de setmana - Volum vespre",
+          "weekend_night_start":      "Cap de setmana - Inici nit",
+          "weekend_night_volume":     "Cap de setmana - Volum nit"
+        }
+      },
+      "greetings": {
+        "title": "Salutacions",
+        "description": "Introdueix una salutació per línia per a cada franja horària.",
+        "data": {
+          "morning_greetings":   "Salutacions del matí",
+          "afternoon_greetings": "Salutacions de la tarda",
+          "evening_greetings":   "Salutacions del vespre",
+          "night_greetings":     "Salutacions de la nit"
+        }
+      },
+      "channels_menu": {
+        "title": "Canals",
+        "menu_options": {
+          "add_channel":    "Afegir canal",
+          "edit_channel":   "Editar canal",
+          "remove_channel": "Eliminar canal"
+        }
+      },
+      "add_channel": {
+        "title": "Afegir canal",
+        "description": "Defineix un nou àlies per al canal de notificació.",
+        "data": {
+          "alias":        "Àlies (nom únic, p. ex. google_home)",
+          "service":      "Servei (domini.servei, p. ex. notify.persistent_notification)",
+          "target":       "Entity_id o chat_id de destí (opcional, separats per coma per a múltiples)",
+          "is_voice":     "Canal de veu (aplica lògica TTS, No Molestar i volum)",
+          "alt_services": "Serveis alternatius (diccionari JSON opcional — per a foto/vídeo de Telegram, etc.)",
+          "default_media_player": "Media Player predeterminat (opcional — alternativa per a canals de veu)"
+        }
+      },
+      "edit_channel": {
+        "title": "Editar canal",
+        "data": {
+          "alias": "Canal a editar"
+        }
+      },
+      "edit_channel_form": {
+        "title": "Editar canal",
+        "description": "Modifica el canal seleccionat. També pots canviar-li el nom modificant l'àlies.",
+        "data": {
+          "alias":        "Àlies (nom únic)",
+          "service":      "Servei (domini.servei, p. ex. notify.persistent_notification)",
+          "target":       "Entity_id o chat_id de destí (opcional, separats per coma per a múltiples)",
+          "is_voice":     "Canal de veu (aplica lògica TTS, No Molestar i volum)",
+          "alt_services": "Serveis alternatius (diccionari JSON opcional)",
+          "default_media_player": "Media Player predeterminat (opcional)"
+        }
+      },
+      "remove_channel": {
+        "title": "Eliminar canal",
+        "data": {
+          "alias": "Canal a eliminar"
+        }
+      }
+    },
+    "error": {
+      "required":        "Aquest camp és obligatori.",
+      "invalid_time":    "Format horari no vàlid — utilitza HH:MM.",
+      "invalid_json":    "Cadena JSON no vàlida per als serveis alternatius.",
+      "invalid_service": "El servei ha d'estar en format domini.servei (p. ex. notify.mobile_app)."
+    }
+  }
+}
