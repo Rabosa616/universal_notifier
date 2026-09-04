@@ -533,10 +533,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             else:
                 _LOGGER.debug(f"UniNotifier: Sezione J, Final payload {service_payload} - Service data {srv_domain}/{srv_name}")
                 if srv_domain == "notify" and srv_name == "send_message":
-                    # HA 2024+: notify.send_message expects target as a separate
-                    # async_call parameter, not inside service_data — passing it
-                    # in data raises "extra keys not allowed @ data['target']"
+                    # notify.send_message requires target as a separate async_call
+                    # parameter and does not accept 'target' or 'data' in service_data
                     target_entities = service_payload.pop(CONF_TARGET, None)
+                    service_payload.pop("data", None)
                     call_target = {"entity_id": target_entities} if target_entities else None
                     tasks.append(hass.services.async_call(srv_domain, srv_name, service_payload, target=call_target))
                 else:
