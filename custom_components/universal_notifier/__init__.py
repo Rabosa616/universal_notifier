@@ -12,7 +12,6 @@ from homeassistant.const import (ATTR_ENTITY_ID, CONF_SERVICE, CONF_TYPE,
                                  STATE_PLAYING)
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
@@ -363,20 +362,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     # Companion app: detect iOS (Apple) vs Android via device registry.
                     # iOS does not render HTML → plain text, no HA prefix, no greeting.
                     # Android renders HTML → fall through to standard formatting.
-                    _ent_reg = er.async_get(hass)
-                    _dev_reg = dr.async_get(hass)
-                    _is_apple = False
-                    for _eid in (dynamic_entities or []):
-                        _ent = _ent_reg.async_get(_eid)
-                        if _ent and _ent.device_id:
-                            _dev = _dev_reg.async_get(_ent.device_id)
-                            if _dev and (_dev.manufacturer or "").lower() == "apple":
-                                _is_apple = True
-                                break
-                    if _is_apple:
-                        final_msg = re.sub(r'<[^>]+>', '', str(target_raw_message)).strip()
+                    if is_apple_device(hass, dynamic_entities):
+                        final_msg = strip_html(str(target_raw_message))
                         if final_title:
-                            final_title = re.sub(r'<[^>]+>', '', str(final_title)).strip()
+                            final_title = strip_html(str(final_title))
                     else:
                         # Android: standard formatting with HTML prefix/greeting
                         clean_name = sanitize_text_visual(raw_name, parse_mode)

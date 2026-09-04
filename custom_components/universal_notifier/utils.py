@@ -186,6 +186,26 @@ def escape_markdownv2(text: str) -> str:
     return result
 
 
+def strip_html(text: str) -> str:
+    """Strip HTML tags from text, returning plain text."""
+    return re.sub(r'<[^>]+>', '', str(text)).strip()
+
+
+def is_apple_device(hass, entity_ids: list) -> bool:
+    """Return True if any target notify entity belongs to an Apple (iOS) device."""
+    from homeassistant.helpers import device_registry as dr
+    from homeassistant.helpers import entity_registry as er
+    ent_reg = er.async_get(hass)
+    dev_reg = dr.async_get(hass)
+    for eid in (entity_ids or []):
+        ent = ent_reg.async_get(eid)
+        if ent and ent.device_id:
+            dev = dev_reg.async_get(ent.device_id)
+            if dev and (dev.manufacturer or "").lower() == "apple":
+                return True
+    return False
+
+
 def normalize_parse_mode(parse_mode: str, srv_domain: str) -> str | None:
     """Normalizza parse_mode per il dominio di servizio specifico."""
     if not parse_mode:
