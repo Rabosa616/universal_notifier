@@ -206,6 +206,69 @@ def is_apple_device(hass, entity_ids: list) -> bool:
     return False
 
 
+def apply_apple_notify_text_formatting(
+    message: str,
+    title: str | None,
+) -> tuple:
+    """iOS: plain text only, no HTML tags, no HA prefix, no greeting."""
+    return strip_html(str(message)), strip_html(str(title)) if title else title
+
+
+def apply_android_notify_text_formatting(
+    message: str,
+    title: str | None,
+    name: str = "",
+    time_str: str = "",
+    greeting: str = "",
+    parse_mode: str | None = None,
+    use_bold_prefix: bool = True,
+    skip_assistant_name: bool = False,
+) -> tuple:
+    """Android: HTML formatting with HA prefix [name - time] and greeting."""
+    clean_name = sanitize_text_visual(name, parse_mode)
+    clean_time = sanitize_text_visual(time_str, parse_mode)
+    clean_msg = sanitize_text_visual(str(message), parse_mode)
+    clean_greet = sanitize_text_visual(greeting, parse_mode)
+    clean_orig_title = sanitize_text_visual(title, parse_mode) if title else None
+    if use_bold_prefix:
+        clean_name = apply_formatting(clean_name, parse_mode, "bold")
+        clean_time = apply_formatting(clean_time, parse_mode, "bold")
+        clean_orig_title = apply_formatting(clean_orig_title, parse_mode, "bold")
+    prefix_parts = []
+    if clean_name and not skip_assistant_name:
+        prefix_parts.append(clean_name)
+    if clean_time:
+        prefix_parts.append(clean_time)
+    clean_prefix = f"[{' - '.join(prefix_parts)}]" if prefix_parts else ""
+    greeting_part = f"{clean_greet}. " if clean_greet else ""
+    if clean_orig_title:
+        final_title = f"{clean_prefix} {clean_orig_title}" if clean_prefix else clean_orig_title
+        final_msg = f"{greeting_part}{clean_msg}"
+    else:
+        final_msg = f"{clean_prefix} {greeting_part}{clean_msg}" if clean_prefix else f"{greeting_part}{clean_msg}"
+    return final_msg, final_title
+
+
+def apply_mobile_notify_text_formatting(
+    message: str,
+    title: str | None,
+    device_type: str,
+    name: str = "",
+    time_str: str = "",
+    greeting: str = "",
+    parse_mode: str | None = None,
+    use_bold_prefix: bool = True,
+    skip_assistant_name: bool = False,
+) -> tuple:
+    """Dispatch to iOS or Android formatting based on device_type ('apple' | 'android')."""
+    if device_type == "apple":
+        return apply_apple_notify_text_formatting(message, title)
+    return apply_android_notify_text_formatting(
+        message, title, name, time_str, greeting,
+        parse_mode, use_bold_prefix, skip_assistant_name,
+    )
+
+
 def normalize_parse_mode(parse_mode: str, srv_domain: str) -> str | None:
     """Normalizza parse_mode per il dominio di servizio specifico."""
     if not parse_mode:

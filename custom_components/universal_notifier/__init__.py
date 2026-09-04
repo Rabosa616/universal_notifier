@@ -359,36 +359,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     final_title = None
                     text_content_for_duration = final_msg
                 elif srv_domain == "notify" and srv_name == "send_message":
-                    # Companion app: detect iOS (Apple) vs Android via device registry.
-                    # iOS does not render HTML → plain text, no HA prefix, no greeting.
-                    # Android renders HTML → fall through to standard formatting.
-                    if is_apple_device(hass, dynamic_entities):
-                        final_msg = strip_html(str(target_raw_message))
-                        if final_title:
-                            final_title = strip_html(str(final_title))
-                    else:
-                        # Android: standard formatting with HTML prefix/greeting
-                        clean_name = sanitize_text_visual(raw_name, parse_mode)
-                        clean_time = sanitize_text_visual(raw_time_str, parse_mode)
-                        clean_msg = sanitize_text_visual(str(target_raw_message), parse_mode)
-                        clean_greet = sanitize_text_visual(current_greeting, parse_mode)
-                        clean_orig_title = sanitize_text_visual(final_title, parse_mode) if final_title else None
-                        if use_bold_prefix:
-                            clean_name = apply_formatting(clean_name, parse_mode, "bold")
-                            clean_time = apply_formatting(clean_time, parse_mode, "bold")
-                            clean_orig_title = apply_formatting(clean_orig_title, parse_mode, "bold")
-                        prefix_parts = []
-                        if clean_name and not skip_assistant_name:
-                            prefix_parts.append(clean_name)
-                        if clean_time:
-                            prefix_parts.append(clean_time)
-                        clean_prefix = f"[{' - '.join(prefix_parts)}]" if prefix_parts else ""
-                        greeting_part = f"{clean_greet}. " if clean_greet else ""
-                        if clean_orig_title:
-                            final_title = f"{clean_prefix} {clean_orig_title}" if clean_prefix else clean_orig_title
-                            final_msg = f"{greeting_part}{clean_msg}"
-                        else:
-                            final_msg = f"{clean_prefix} {greeting_part}{clean_msg}" if clean_prefix else f"{greeting_part}{clean_msg}"
+                    device_type = "apple" if is_apple_device(hass, dynamic_entities) else "android"
+                    final_msg, final_title = apply_mobile_notify_text_formatting(
+                        message=target_raw_message,
+                        title=final_title,
+                        device_type=device_type,
+                        name=raw_name,
+                        time_str=raw_time_str,
+                        greeting=current_greeting,
+                        parse_mode=parse_mode,
+                        use_bold_prefix=use_bold_prefix,
+                        skip_assistant_name=skip_assistant_name,
+                    )
                 else:
                     clean_name = sanitize_text_visual(raw_name, parse_mode)
                     clean_time = sanitize_text_visual(raw_time_str, parse_mode)
