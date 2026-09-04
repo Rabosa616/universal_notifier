@@ -12,6 +12,7 @@ from homeassistant.const import (ATTR_ENTITY_ID, CONF_SERVICE, CONF_TYPE,
                                  STATE_PLAYING)
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
@@ -359,10 +360,46 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     final_title = None
                     text_content_for_duration = final_msg
                 elif srv_domain == "notify" and srv_name == "send_message":
-                    # Plain-text channel (companion app): strip HTML, no HA prefix, no greeting
-                    final_msg = re.sub(r'<[^>]+>', '', str(target_raw_message)).strip()
-                    if final_title:
-                        final_title = re.sub(r'<[^>]+>', '', str(final_title)).strip()
+                    # Companion app: detect iOS (Apple) vs Android via device registry.
+                    # iOS does not render HTML → plain text, no HA prefix, no greeting.
+                    # Android renders HTML → fall through to standard formatting.
+                    _ent_reg = er.async_get(hass)
+                    _dev_reg = dr.async_get(hass)
+                    _is_apple = False
+                    for _eid in (dynamic_entities or []):
+                        _ent = _ent_reg.async_get(_eid)
+                        if _ent and _ent.device_id:
+                            _dev = _dev_reg.async_get(_ent.device_id)
+                            if _dev and (_dev.manufacturer or "").lower() == "apple":
+                                _is_apple = True
+                                break
+                    if _is_apple:
+                        final_msg = re.sub(r'<[^>]+>', '', str(target_raw_message)).strip()
+                        if final_title:
+                            final_title = re.sub(r'<[^>]+>', '', str(final_title)).strip()
+                    else:
+                        # Android: standard formatting with HTML prefix/greeting
+                        clean_name = sanitize_text_visual(raw_name, parse_mode)
+                        clean_time = sanitize_text_visual(raw_time_str, parse_mode)
+                        clean_msg = sanitize_text_visual(str(target_raw_message), parse_mode)
+                        clean_greet = sanitize_text_visual(current_greeting, parse_mode)
+                        clean_orig_title = sanitize_text_visual(final_title, parse_mode) if final_title else None
+                        if use_bold_prefix:
+                            clean_name = apply_formatting(clean_name, parse_mode, "bold")
+                            clean_time = apply_formatting(clean_time, parse_mode, "bold")
+                            clean_orig_title = apply_formatting(clean_orig_title, parse_mode, "bold")
+                        prefix_parts = []
+                        if clean_name and not skip_assistant_name:
+                            prefix_parts.append(clean_name)
+                        if clean_time:
+                            prefix_parts.append(clean_time)
+                        clean_prefix = f"[{' - '.join(prefix_parts)}]" if prefix_parts else ""
+                        greeting_part = f"{clean_greet}. " if clean_greet else ""
+                        if clean_orig_title:
+                            final_title = f"{clean_prefix} {clean_orig_title}" if clean_prefix else clean_orig_title
+                            final_msg = f"{greeting_part}{clean_msg}"
+                        else:
+                            final_msg = f"{clean_prefix} {greeting_part}{clean_msg}" if clean_prefix else f"{greeting_part}{clean_msg}"
                 else:
                     clean_name = sanitize_text_visual(raw_name, parse_mode)
                     clean_time = sanitize_text_visual(raw_time_str, parse_mode)
