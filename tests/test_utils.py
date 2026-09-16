@@ -5,14 +5,11 @@ from datetime import time
 
 import pytest
 
-from custom_components.universal_notifier.utils import (apply_formatting,
-                                                        clean_text_for_tts,
-                                                        escape_markdownv2,
-                                                        estimate_tts_duration,
-                                                        get_current_slot_info,
-                                                        is_time_in_range,
-                                                        normalize_parse_mode,
-                                                        sanitize_text_visual)
+from custom_components.universal_notifier.utils import (
+    apply_formatting, apply_mobile_notify_text_formatting, clean_text_for_tts,
+    escape_markdownv2, estimate_tts_duration, get_current_slot_info,
+    is_apple_device, is_time_in_range, normalize_parse_mode,
+    sanitize_text_visual, strip_html)
 
 # ============================================================================
 # estimate_tts_duration
@@ -341,3 +338,118 @@ class TestNormalizeParseMode:
 
     def test_empty_returns_none(self):
         assert normalize_parse_mode("", "telegram_bot") is None
+
+
+# ============================================================================
+# strip_html
+# ============================================================================
+
+class TestStripHTML:
+    def test_removes_tags(self):
+        assert strip_html("<b>Bold</b> text") == "Bold text"
+
+    def test_removes_nested_tags(self):
+        assert strip_html("<b><i>Hi</i></b>") == "Hi"
+
+    def test_plain_text_unchanged(self):
+        assert strip_html("no tags here") == "no tags here"
+
+    def test_strips_surrounding_whitespace(self):
+        assert strip_html("  <b>x</b>  ") == "x"
+
+    def test_non_string_input(self):
+        assert strip_html(123) == "123"  # type: ignore[arg-type]
+
+
+# ============================================================================
+# is_apple_device
+# ============================================================================
+
+class TestIsAppleDevice:
+    def test_empty_entities_returns_false(self):
+        assert is_apple_device(object(), []) is False
+
+    def test_none_entities_returns_false(self):
+        assert is_apple_device(object(), None) is False
+
+    def test_missing_registries_returns_false(self):
+        """A hass without registries must not raise, just report non-Apple."""
+        assert is_apple_device(object(), ["notify.mobile_app_phone"]) is False
+
+
+# ============================================================================
+# apply_mobile_notify_text_formatting
+# ============================================================================
+
+class TestApplyMobileNotifyTextFormatting:
+    def test_apple_strips_html_and_prefix(self):
+        msg, title = apply_mobile_notify_text_formatting(
+            message="<b>Hello</b>",
+            title="<i>Casa</i>",
+            device_type="apple",
+            name="Assistant",
+            time_str="10:00",
+            greeting="Good morning",
+            parse_mode="html",
+        )
+        assert msg == "Hello"
+        assert title == "Casa"
+
+    def test_apple_without_title(self):
+        msg, title = apply_mobile_notify_text_formatting(
+            message="<b>Hello</b>", title=None, device_type="apple"
+        )
+        assert msg == "Hello"
+        assert title is None
+
+    def test_android_keeps_prefix_and_greeting(self):
+        msg, title = apply_mobile_notify_text_formatting(
+            message="Hello",
+            title="Casa",
+            device_type="android",
+            name="Assistant",
+            time_str="10:00",
+            greeting="Good morning",
+            parse_mode="html",
+        )
+        assert "Good morning" in msg
+        assert "Hello" in msg
+        assert "Assistant" in title
+        assert "Casa" in title
+
+    def test_android_without_title_puts_prefix_in_message(self):
+        msg, title = apply_mobile_notify_text_formatting(
+            message="Hello",
+            title=None,
+            device_type="android",
+            name="Assistant",
+            time_str="10:00",
+            parse_mode="html",
+        )
+        assert "Assistant" in msg
+        assert "10:00" in msg
+        assert title is None
+
+    def test_android_skip_assistant_name(self):
+        msg, _ = apply_mobile_notify_text_formatting(
+            message="Hello",
+            title=None,
+            device_type="android",
+            name="Assistant",
+            time_str="10:00",
+            parse_mode="html",
+            skip_assistant_name=True,
+        )
+        assert "Assistant" not in msg
+        assert "10:00" in msg
+
+    def test_unknown_device_type_falls_back_to_android(self):
+        msg, _ = apply_mobile_notify_text_formatting(
+            message="Hello",
+            title=None,
+            device_type="whatever",
+            name="Assistant",
+            time_str="10:00",
+            parse_mode="html",
+        )
+        assert "Assistant" in msg

@@ -191,13 +191,26 @@ def strip_html(text: str) -> str:
     return re.sub(r'<[^>]+>', '', str(text)).strip()
 
 
-def is_apple_device(hass, entity_ids: list) -> bool:
-    """Return True if any target notify entity belongs to an Apple (iOS) device."""
+def is_apple_device(hass, entity_ids) -> bool:
+    """Return True if any target notify entity belongs to an Apple (iOS) device.
+
+    Falls back to False when the registries are not available (for example
+    during early startup or in tests with a mocked hass).
+    """
+    if not entity_ids:
+        return False
+    if isinstance(entity_ids, str):
+        entity_ids = [entity_ids]
     from homeassistant.helpers import device_registry as dr
     from homeassistant.helpers import entity_registry as er
-    ent_reg = er.async_get(hass)
-    dev_reg = dr.async_get(hass)
-    for eid in (entity_ids or []):
+    try:
+        ent_reg = er.async_get(hass)
+        dev_reg = dr.async_get(hass)
+    except (KeyError, RuntimeError, AttributeError, TypeError):
+        return False
+    for eid in entity_ids:
+        if not isinstance(eid, str):
+            continue
         ent = ent_reg.async_get(eid)
         if ent and ent.device_id:
             dev = dev_reg.async_get(ent.device_id)
@@ -245,6 +258,7 @@ def apply_android_notify_text_formatting(
         final_title = f"{clean_prefix} {clean_orig_title}" if clean_prefix else clean_orig_title
         final_msg = f"{greeting_part}{clean_msg}"
     else:
+        final_title = None
         final_msg = f"{clean_prefix} {greeting_part}{clean_msg}" if clean_prefix else f"{greeting_part}{clean_msg}"
     return final_msg, final_title
 
