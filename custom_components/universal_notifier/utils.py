@@ -219,12 +219,48 @@ def is_apple_device(hass, entity_ids) -> bool:
     return False
 
 
-def apply_apple_notify_text_formatting(
+def is_mobile_app_target(hass, entity_ids) -> bool:
+    """Return True when every target notify entity comes from the mobile_app platform.
+
+    A notify entity that is not a companion-app one (an Alexa speaker, a
+    Sonos, any other integration exposing notify entities) must not receive
+    HTML markup, the assistant prefix or the greeting.
+
+    Falls back to True when the registry is not available or no target is
+    known, so the existing companion-app formatting is preserved.
+    """
+    if not entity_ids:
+        return True
+    if isinstance(entity_ids, str):
+        entity_ids = [entity_ids]
+    from homeassistant.helpers import entity_registry as er
+    try:
+        ent_reg = er.async_get(hass)
+    except (KeyError, RuntimeError, AttributeError, TypeError):
+        return True
+    for eid in entity_ids:
+        if not isinstance(eid, str):
+            continue
+        ent = ent_reg.async_get(eid)
+        if ent is None or ent.platform != "mobile_app":
+            return False
+    return True
+
+
+def apply_plain_notify_text_formatting(
     message: str,
     title: str | None,
 ) -> tuple:
-    """iOS: plain text only, no HTML tags, no HA prefix, no greeting."""
+    """Plain text only, no HTML tags, no HA prefix, no greeting.
+
+    Used for iOS companion apps and for every non-mobile_app notify target
+    (Alexa and other speakers), which read the message out loud.
+    """
     return strip_html(str(message)), strip_html(str(title)) if title else title
+
+
+# Backwards-compatible alias: the plain formatting was introduced for iOS.
+apply_apple_notify_text_formatting = apply_plain_notify_text_formatting
 
 
 def apply_android_notify_text_formatting(
@@ -274,9 +310,9 @@ def apply_mobile_notify_text_formatting(
     use_bold_prefix: bool = True,
     skip_assistant_name: bool = False,
 ) -> tuple:
-    """Dispatch to iOS or Android formatting based on device_type ('apple' | 'android')."""
-    if device_type == "apple":
-        return apply_apple_notify_text_formatting(message, title)
+    """Dispatch formatting based on device_type ('plain' | 'apple' | 'android')."""
+    if device_type in ("plain", "apple"):
+        return apply_plain_notify_text_formatting(message, title)
     return apply_android_notify_text_formatting(
         message, title, name, time_str, greeting,
         parse_mode, use_bold_prefix, skip_assistant_name,

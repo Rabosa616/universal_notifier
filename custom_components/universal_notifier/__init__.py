@@ -465,7 +465,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     final_title = None
                     text_content_for_duration = final_msg
                 elif srv_domain == "notify" and srv_name == "send_message":
-                    device_type = "apple" if is_apple_device(hass, dynamic_entities) else "android"
+                    if not is_mobile_app_target(hass, dynamic_entities):
+                        # Speakers (Alexa & co.) read the message out loud:
+                        # no markup, no prefix, no greeting.
+                        device_type = "plain"
+                    elif is_apple_device(hass, dynamic_entities):
+                        device_type = "apple"
+                    else:
+                        device_type = "android"
                     final_msg, final_title = apply_mobile_notify_text_formatting(
                         message=target_raw_message,
                         title=final_title,
