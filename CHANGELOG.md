@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+- **Speaker notify entities no longer get the visual prefix**: Channels using `notify.send_message` towards a non-companion-app notify entity (Alexa `*_announce` / `*_speak`, and any other integration exposing notify entities) are now formatted as plain text — no HTML markup, no `[Assistant - HH:MM:SS]` prefix and no greeting. These targets read the message out loud, so the prefix was being spoken. The formatting branch previously only distinguished Apple from Android, and an Echo (`manufacturer: Amazon`) fell through to the Android branch, which is the one that builds the prefix. The new `is_mobile_app_target()` helper keys off the entity registry platform instead of the device manufacturer.
+
 ## [0.9.0] - 2026-09-06 - PRODUCTION
 
 ### Added

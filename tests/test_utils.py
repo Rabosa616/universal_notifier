@@ -8,8 +8,8 @@ import pytest
 from custom_components.universal_notifier.utils import (
     apply_formatting, apply_mobile_notify_text_formatting, clean_text_for_tts,
     escape_markdownv2, estimate_tts_duration, get_current_slot_info,
-    is_apple_device, is_time_in_range, normalize_parse_mode,
-    sanitize_text_visual, strip_html)
+    is_apple_device, is_mobile_app_target, is_time_in_range,
+    normalize_parse_mode, sanitize_text_visual, strip_html)
 
 # ============================================================================
 # estimate_tts_duration
@@ -378,6 +378,78 @@ class TestIsAppleDevice:
 
 
 # ============================================================================
+# is_mobile_app_target
+# ============================================================================
+
+class _FakeEntityEntry:
+    def __init__(self, platform: str):
+        self.platform = platform
+
+
+class _FakeEntityRegistry:
+    def __init__(self, entries: dict):
+        self._entries = entries
+
+    def async_get(self, entity_id: str):
+        return self._entries.get(entity_id)
+
+
+def _patch_entity_registry(monkeypatch, entries: dict):
+    """Make is_mobile_app_target see a registry with the given platforms."""
+    from homeassistant.helpers import entity_registry as er
+    monkeypatch.setattr(er, "async_get", lambda hass: _FakeEntityRegistry(entries))
+
+
+class TestIsMobileAppTarget:
+    def test_empty_entities_returns_true(self):
+        assert is_mobile_app_target(object(), []) is True
+
+    def test_none_entities_returns_true(self):
+        assert is_mobile_app_target(object(), None) is True
+
+    def test_missing_registry_returns_true(self):
+        """A hass without a registry must not raise, nor change the old behaviour."""
+        assert is_mobile_app_target(object(), ["notify.mobile_app_phone"]) is True
+
+    def test_mobile_app_entity(self, monkeypatch):
+        _patch_entity_registry(
+            monkeypatch, {"notify.phone": _FakeEntityEntry("mobile_app")}
+        )
+        assert is_mobile_app_target(object(), ["notify.phone"]) is True
+
+    def test_single_string_target_accepted(self, monkeypatch):
+        _patch_entity_registry(
+            monkeypatch, {"notify.phone": _FakeEntityEntry("mobile_app")}
+        )
+        assert is_mobile_app_target(object(), "notify.phone") is True
+
+    def test_speaker_entity(self, monkeypatch):
+        _patch_entity_registry(
+            monkeypatch, {"notify.echo_announce": _FakeEntityEntry("alexa_devices")}
+        )
+        assert is_mobile_app_target(object(), ["notify.echo_announce"]) is False
+
+    def test_mixed_targets_are_not_mobile_app(self, monkeypatch):
+        _patch_entity_registry(
+            monkeypatch,
+            {
+                "notify.phone": _FakeEntityEntry("mobile_app"),
+                "notify.echo_announce": _FakeEntityEntry("alexa_devices"),
+            },
+        )
+        assert (
+            is_mobile_app_target(
+                object(), ["notify.phone", "notify.echo_announce"]
+            )
+            is False
+        )
+
+    def test_unknown_entity_is_not_mobile_app(self, monkeypatch):
+        _patch_entity_registry(monkeypatch, {})
+        assert is_mobile_app_target(object(), ["notify.whatever"]) is False
+
+
+# ============================================================================
 # apply_mobile_notify_text_formatting
 # ============================================================================
 
@@ -442,6 +514,31 @@ class TestApplyMobileNotifyTextFormatting:
         )
         assert "Assistant" not in msg
         assert "10:00" in msg
+
+    def test_plain_strips_html_prefix_and_greeting(self):
+        """Speakers read the text out loud: no markup, no prefix, no greeting."""
+        msg, title = apply_mobile_notify_text_formatting(
+            message="<b>Hello</b>",
+            title=None,
+            device_type="plain",
+            name="Home Assistant",
+            time_str="22:37:30",
+            greeting="Good evening",
+            parse_mode="html",
+        )
+        assert msg == "Hello"
+        assert title is None
+
+    def test_plain_keeps_title_without_markup(self):
+        msg, title = apply_mobile_notify_text_formatting(
+            message="Hello",
+            title="<i>Casa</i>",
+            device_type="plain",
+            name="Home Assistant",
+            time_str="22:37:30",
+        )
+        assert msg == "Hello"
+        assert title == "Casa"
 
     def test_unknown_device_type_falls_back_to_android(self):
         msg, _ = apply_mobile_notify_text_formatting(
